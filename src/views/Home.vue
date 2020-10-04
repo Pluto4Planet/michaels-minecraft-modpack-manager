@@ -9,6 +9,7 @@
       <v-icon left>email</v-icon>
       <span>kys piss</span>
     </v-btn>
+    <p v-if="result">{{result}}</p>
   </div>
 </template>
 
@@ -16,15 +17,24 @@
 import { Component, Vue } from "vue-property-decorator";
 const curseforge = require("mc-curseforge-api");
 
-@Component({})
-export default class Home extends Vue {
-  doSomething = async () => {
+@Component({
+  data: function() {
+    return {
+      result: null
+    };
+  },
+  methods: {
+    doSomething: async function() {
     console.log("Button click");
     console.log("AAAAAAB");
     const mods = await curseforge.getMods({
       searchFilter: "applied energistics"
     });
     console.log(mods);
-  };
+    this.$data.result = mods;
+    }
+  }
+})
+export default class Home extends Vue {
 }
 </script>
