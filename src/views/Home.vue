@@ -31,6 +31,10 @@ const curseforge = require("mc-curseforge-api");
       searchFilter: "applied energistics"
     });
     console.log(mods);
+    const files = await mods[0].getFiles();
+    const path = "./Mod.jar";
+    console.log(path);
+    files[0].download(path);
     this.$data.result = mods;
     }
   }
