@@ -17,6 +17,7 @@
   "dependencies": {
     "@mdi/font": "^3.6.95",
     "core-js": "^3.6.5",
+    "cors": "^2.8.5",
     "mc-curseforge-api": "^2.1.0",
     "register-service-worker": "^1.7.1",
     "roboto-fontface": "*",
