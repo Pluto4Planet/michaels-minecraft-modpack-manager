@@ -32,7 +32,7 @@ const curseforge = require("mc-curseforge-api");
     });
     console.log(mods);
     const files = await mods[0].getFiles();
-    const path = "./Mod.jar";
+    const path = "C:\\git-repos\\michaels-minecraft-modpack-manager" + "\\Mod.jar";
     console.log(path);
     files[0].download(path);
     this.$data.result = mods;
