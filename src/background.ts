@@ -23,6 +23,7 @@ function createWindow() {
     height: 720,
     webPreferences: {
       webSecurity: false,
+      nodeIntegrationInWorker: true,
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: (process.env

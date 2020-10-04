@@ -16,6 +16,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 const curseforge = require("mc-curseforge-api");
+const fs = require('fs');
 
 @Component({
   data: function() {
@@ -28,13 +29,29 @@ const curseforge = require("mc-curseforge-api");
     console.log("Button click");
     console.log("AAAAAAB");
     const mods = await curseforge.getMods({
-      searchFilter: "applied energistics"
+      searchFilter: "applied energistics",
+      gameVersion: "1.12.2"
     });
-    console.log(mods);
+    //console.log(mods[0]);
+    const modName = mods[0].name;
+    const modDescription = mods[0].summary;
+    const filename = mods[0].latestFiles[0].download_url.split("/").pop();
+    const versions = mods[0].latestFiles[0].minecraft_versions;
+    const modFiles = await mods[0].getFiles();
+    for(let i = 0; i < modFiles.length; i++) {
+      console.log(modFiles[i].minecraft_versions);
+    }
+    
+    console.log(modName);
+    console.log(modDescription);
+    console.log(filename);
+    //console.log(versions)
+    
     const files = await mods[0].getFiles();
-    const path = "C:\\git-repos\\michaels-minecraft-modpack-manager" + "\\Mod.jar";
+    
+    const path = "C:/git-repos/michaels-minecraft-modpack-manager/" + filename;
     console.log(path);
-    files[0].download(path);
+    files[0].download(path, true);
     this.$data.result = mods;
     }
   }
