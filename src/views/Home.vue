@@ -6,56 +6,92 @@
     <v-btn depressed color="pink">click me</v-btn>
     <v-btn text color="pink">click me</v-btn>
     <v-btn @click="doSomething" class="pink white--text">
-      <v-icon left>email</v-icon>
-      <span>kys piss</span>
+      <v-icon left>archive</v-icon>
+      <span>Lade Mod runter</span>
     </v-btn>
-    <p v-if="result">{{result}}</p>
+    <v-btn @click="loadModpackDataFromFile" class="pink white--text">
+      <v-icon left>insert_drive_file</v-icon>
+      <span>Lade Modpack aus Datei</span>
+    </v-btn>
+    <table>
+      <tr>
+        <th>Modpack-Name</th>
+        <th>Minecraft Version</th>
+      </tr>
+      <tr>
+        <td v-if="modpackName">{{ modpackName }}</td>
+        <td v-if="modpackMinecraftVersion">{{ modpackMinecraftVersion }}</td>
+      </tr>
+      <tr>
+        <th>Mod</th>
+        <th>Beschreibung</th>
+      </tr>
+      <tr v-for="mod in mods" :key="mod.id">
+        <td>{{ mod.name }}</td>
+        <td>{{ mod.description }}</td>
+      </tr>
+    </table>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 const curseforge = require("mc-curseforge-api");
-const fs = require('fs');
+const fs = require("fs");
 
 @Component({
   data: function() {
     return {
-      result: null
+      mods: null,
+      modpackName: null,
+      modpackMinecraftVersion: null,
     };
   },
   methods: {
+    loadModpackDataFromFile: function() {
+      const msg = require("../../modpack.json");
+      
+      this.$data.modpackName = msg["modpack-name"];
+      this.$data.modpackMinecraftVersion = msg["minecraft-version"];
+      this.$data.mods = msg.mods;
+    },
     doSomething: async function() {
-    console.log("Button click");
-    console.log("AAAAAAB");
-    const mods = await curseforge.getMods({
-      searchFilter: "applied energistics",
-      gameVersion: "1.12.2"
-    });
-    //console.log(mods[0]);
-    const modName = mods[0].name;
-    const modDescription = mods[0].summary;
-    const filename = mods[0].latestFiles[0].download_url.split("/").pop();
-    const versions = mods[0].latestFiles[0].minecraft_versions;
-    const modFiles = await mods[0].getFiles();
-    for(let i = 0; i < modFiles.length; i++) {
-      console.log(modFiles[i].minecraft_versions);
-    }
-    
-    console.log(modName);
-    console.log(modDescription);
-    console.log(filename);
-    //console.log(versions)
-    
-    const files = await mods[0].getFiles();
-    
-    const path = "C:/git-repos/michaels-minecraft-modpack-manager/" + filename;
-    console.log(path);
-    files[0].download(path, true);
-    this.$data.result = mods;
+      const mods = await curseforge.getMods({
+        searchFilter: "random things"
+      });
+      //console.log(mods[0]);
+      const modName = mods[0].name;
+      const modId = mods[0].id;
+      const modDescription = mods[0].summary;
+
+      console.log(`modName: ${modName}`);
+      console.log(`modDescription: ${modDescription}`);
+      console.log(`modId: ${modId}`);
+
+      const files = await mods[0].getFiles();
+      const modFileId = files[0].id;
+      const filename = files[0].download_url.split("/").pop();
+
+      console.log(`modFileId: ${modFileId}`);
+      console.log(`filename: ${filename}`);
+      const basePath =
+        "C:/Users/micha/git-repos/michaels-minecraft-modpack-manager";
+
+      if (!fs.existsSync(basePath + "/mods")) {
+        fs.mkdirSync(basePath + "/mods");
+      }
+
+      const versions = files[0].minecraft_versions;
+      console.log(`versions: ${versions}`);
+      if (!fs.existsSync(basePath + "/mods/" + versions)) {
+        fs.mkdirSync(basePath + "/mods/" + versions);
+      }
+
+      const path = basePath + "/mods/" + versions + "/" + filename;
+      console.log(`Download path: ${path}`);
+      //files[0].download(path, true);
     }
   }
 })
-export default class Home extends Vue {
-}
+export default class Home extends Vue {}
 </script>

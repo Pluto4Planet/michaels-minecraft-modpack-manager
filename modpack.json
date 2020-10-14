@@ -1,0 +1,29 @@
+{
+    "forge-version":"1.12.2-14.23.5.2838",
+	"minecraft-version":"1.12.2",
+    "modpack-name":"Le Epic Pack",
+    "suggested-amount-of-ram":"8GB",
+    "mods": [
+        {
+            "name": "Applied Energistics 2",
+            "description": "A Mod about Matter, Energy and using them to conquer the world..",
+            "modId": 223794,
+            "modFileId": 2232946,
+            "filename": "appliedenergistics2-rv2-beta-25.jar"
+        },
+        {
+            "name": "Thaumcraft",
+            "description": "Thaumaturgy is the capability of a magician to work miracles. This is what this mod is all about - drawing magic from physical objects in the form of Essentia and reshaping it to perform miracles.",
+            "modId": 223628,
+            "modFileId": 2529223,
+            "filename": "Thaumcraft-1.10.2-6.0.BETA4.jar"
+        },
+        {
+            "name": "Random Things",
+            "description": "Random Things adds various miscellaneous items and blocks to minecraft",
+            "modId": 59816,
+            "modFileId": 2287173,
+            "filename": "RandomThings-MC1.8.9-3.6.5.jar"
+        }
+    ]
+}
