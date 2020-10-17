@@ -13,6 +13,20 @@
       <v-icon left>insert_drive_file</v-icon>
       <span>Lade Modpack aus Datei</span>
     </v-btn>
+    <v-btn @click="getVersion" class="pink white--text">
+      Version
+    </v-btn>
+    <p id="version"></p>
+    <div id="notification" class="hidden">
+      <p id="message"></p>
+      <button id="close-button" @click="closeNotification">
+        Close
+      </button>
+      <button id="restart-button" @click="restartApp" class="hidden">
+        Restart
+      </button>
+    </div>
+    <p>HEYYY ES FUNMKTIONIERT</p>
     <table>
       <tr>
         <th>Modpack-Name</th>
@@ -34,10 +48,26 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="js">
 import { Component, Vue } from "vue-property-decorator";
+import {ipcRenderer} from "electron";
 const curseforge = require("mc-curseforge-api");
 const fs = require("fs");
+const notification = document.getElementById('notification');
+const message = document.getElementById('message');
+const restartButton = document.getElementById('restart-button');
+
+ipcRenderer.on('update_available', () => {
+  ipcRenderer.removeAllListeners('update_available');
+  message.innerText = 'A new update is available. Downloading now...';
+  notification.classList.remove('hidden');
+});
+ipcRenderer.on('update_downloaded', () => {
+  ipcRenderer.removeAllListeners('update_downloaded');
+  message.innerText = 'Update Downloaded. It will be installed on restart. Restart now?';
+  restartButton.classList.remove('hidden');
+  notification.classList.remove('hidden');
+});
 
 @Component({
   data: function() {
@@ -48,6 +78,16 @@ const fs = require("fs");
     };
   },
   methods: {
+    getVersion: function() {
+      const { ipcRenderer } = require('electron');
+    const version = document.getElementById('version');
+    
+    ipcRenderer.send('app_version');
+    ipcRenderer.on('app_version', (event, arg) => {
+      ipcRenderer.removeAllListeners('app_version');
+      version.innerText = 'Version ' + arg.version;
+    });
+    },
     loadModpackDataFromFile: function() {
       const msg = require("../../modpack.json");
       
@@ -74,8 +114,8 @@ const fs = require("fs");
 
       console.log(`modFileId: ${modFileId}`);
       console.log(`filename: ${filename}`);
-      const basePath =
-        "C:/Users/micha/git-repos/michaels-minecraft-modpack-manager";
+      //const basePath = "C:/Users/micha/git-repos/michaels-minecraft-modpack-manager";
+        const basePath = "D:/git-repos/michaels-minecraft-modpack-manager";
 
       if (!fs.existsSync(basePath + "/mods")) {
         fs.mkdirSync(basePath + "/mods");

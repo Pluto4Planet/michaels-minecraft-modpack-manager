@@ -1,6 +1,6 @@
 {
   "name": "michaels-minecraft-modpack-manager",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -11,13 +11,15 @@
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
     "build:win": "npm run electron:build -- --win nsis",
-    "build:linux": "npm run electron:build -- --linux deb"
+    "build:linux": "npm run electron:build -- --linux deb",
+    "publish": "npm run electron:build -- -p always"
   },
   "main": "background.js",
   "dependencies": {
     "@mdi/font": "^3.6.95",
     "core-js": "^3.6.5",
     "cors": "^2.8.5",
+    "electron-updater": "^4.3.5",
     "mc-curseforge-api": "^2.1.0",
     "register-service-worker": "^1.7.1",
     "roboto-fontface": "*",
