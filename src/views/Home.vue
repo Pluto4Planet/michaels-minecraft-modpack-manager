@@ -17,16 +17,28 @@
       Version
     </v-btn>
     <p id="version"></p>
-    <div id="notification" class="hidden">
-      <p id="message"></p>
-      <button id="close-button" @click="closeNotification">
-        Close
-      </button>
-      <button id="restart-button" @click="restartApp" class="hidden">
-        Restart
-      </button>
-    </div>
-    <p>HEYYY ES FUNMKTIONIERT</p>
+    <p>ES FUNKTIONIERT</p>
+    <p v-if="downloadProcess">{{downloadProcess}}</p>
+    <dialog
+     title="Application update ......"
+     :visible="showUpdater"
+     :close-on-click-modal="false"
+     :close-on-press-escape="false"
+     :show-close="false"
+     width="620px"
+     top="26vh"
+     center>
+     <template v-if="downloadProcess">
+       <p>{{ 'Current:' + downloadProcess.transferred + '/ co' + downloadProcess.total}}</p>
+       <el-progress :text-inside="true" :stroke-width="18" :percentage="downloadProcess.percent"></el-progress>
+       <p>Downloading ({{downloadProcess.speed}}) ......</p>
+     </template>
+   </dialog>
+   <div v-if="downloadProcess">
+       <p>{{ 'Current:' + downloadProcess.transferred + '/ co' + downloadProcess.total}}</p>
+       <el-progress :text-inside="true" :stroke-width="18" :percentage="downloadProcess.percent"></el-progress>
+       <p>Downloading ({{downloadProcess.speed}}) ......</p>
+     </div>
     <table>
       <tr>
         <th>Modpack-Name</th>
@@ -53,21 +65,6 @@ import { Component, Vue } from "vue-property-decorator";
 import {ipcRenderer} from "electron";
 const curseforge = require("mc-curseforge-api");
 const fs = require("fs");
-const notification = document.getElementById('notification');
-const message = document.getElementById('message');
-const restartButton = document.getElementById('restart-button');
-
-ipcRenderer.on('update_available', () => {
-  ipcRenderer.removeAllListeners('update_available');
-  message.innerText = 'A new update is available. Downloading now...';
-  notification.classList.remove('hidden');
-});
-ipcRenderer.on('update_downloaded', () => {
-  ipcRenderer.removeAllListeners('update_downloaded');
-  message.innerText = 'Update Downloaded. It will be installed on restart. Restart now?';
-  restartButton.classList.remove('hidden');
-  notification.classList.remove('hidden');
-});
 
 @Component({
   data: function() {
@@ -75,9 +72,64 @@ ipcRenderer.on('update_downloaded', () => {
       mods: null,
       modpackName: null,
       modpackMinecraftVersion: null,
+      showUpdater: false,
+      downloadProcess: null,
     };
   },
   methods: {
+    created() {
+      // (To allow non-Electron after the normal operation, add the judgment) only in Electron mode
+      if (process.env.IS_ELECTRON) {
+        const { ipcRenderer } = require('electron')
+        // find the new version
+        ipcRenderer.once('autoUpdater-canUpdate', (event, info) => {
+          this.$confirm(`Found a new version [v${info.version}], Whether to update? `, 'prompt', {
+            confirmButtonText: 'determine',
+            cancelButtonText: 'cancel',
+            type: 'warning'
+          }).then(() => {
+            ipcRenderer.send('autoUpdater-toDownload')
+          })
+        })
+        // download progress
+        ipcRenderer.on('autoUpdater-progress', (event, process) => {
+          if (process.transferred >= 1024 * 1024) {
+            process.transferred = (process.transferred / 1024 / 1024).toFixed(2) + 'M'
+          } else {
+            process.transferred = (process.transferred / 1024).toFixed(2) + 'K'
+          }
+          if (process.total >= 1024 * 1024) {
+            process.total = (process.total / 1024 / 1024).toFixed(2) + 'M'
+          } else {
+            process.total = (process.total / 1024).toFixed(2) + 'K'
+          }
+          if (process.bytesPerSecond >= 1024 * 1024) {
+            process.speed = (process.bytesPerSecond / 1024 / 1024).toFixed(2) + 'M/s'
+          } else if (process.bytesPerSecond >= 1024) {
+            process.speed = (process.bytesPerSecond / 1024).toFixed(2) + 'K/s'
+          } else {
+            process.speed = process.bytesPerSecond + 'B/s'
+          }
+          process.percent = process.percent.toFixed(2)
+          this.downloadProcess = process
+          this.showUpdater = true
+        })
+        // update failed to download
+        ipcRenderer.once('autoUpdater-error', (event) => {
+          this.$message.error('Update failed! ')
+          this.showUpdater = false
+        })
+        // Download completed
+        ipcRenderer.once('autoUpdater-downloaded', () => {
+          this.$confirm('Update is complete, close the application if you install a new version? ', 'prompt', {
+            confirmButtonText: 'determine',
+            cancelButtonText: 'cancel',
+            type: 'warning'
+          }).then(() => {
+            ipcRenderer.send('exit-app')
+          })
+        })
+      }},
     getVersion: function() {
       const { ipcRenderer } = require('electron');
     const version = document.getElementById('version');

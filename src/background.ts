@@ -40,8 +40,10 @@ function createWindow() {
     createProtocol("app");
     // Load the index.html when not in development
     win.loadURL("app://./index.html");
-    autoUpdater.checkForUpdatesAndNotify();
+    //autoUpdater.checkForUpdatesAndNotify();
   }
+  
+  autoUpdater.checkForUpdates();
 
   win.on("closed", () => {
     win = null;
@@ -65,6 +67,31 @@ app.on("activate", () => {
     createWindow();
   }
 });
+
+
+autoUpdater.on('checking-for-update', () => {
+  win!.webContents.send('Checking for update...', null)
+})
+autoUpdater.on('update-available', (info) => {
+  // version can be updated
+  win!.webContents.send('autoUpdater-canUpdate', info)
+})
+// autoUpdater.on('update-not-available', (info) => {
+// // can not be updated
+// })
+autoUpdater.on('error', (err) => {
+  // Update Error
+  win!.webContents.send('autoUpdater-error', err)
+})
+autoUpdater.on('download-progress', (progressObj) => {
+  // download progress being downloaded
+  win!.webContents.send('autoUpdater-progress', progressObj)
+})
+autoUpdater.on('update-downloaded', (info) => {
+  // Download completed
+  win!.webContents.send('autoUpdater-downloaded', info)
+  //autoUpdater.quitAndInstall();
+})
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -99,4 +126,6 @@ if (isDevelopment) {
 ipcMain.on('app_version', (event) => {
   event.sender.send('app_version', { version: app.getVersion() });
 });
+
+
 
